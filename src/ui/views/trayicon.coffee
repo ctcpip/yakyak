@@ -2,10 +2,18 @@ remote = require('electron').remote
 Tray = remote.Tray
 Menu = remote.Menu
 path = require 'path'
+os = require 'os'
 
-trayIcons =
-    "read": path.join __dirname, '..', '..', 'icons', 'icon-read.png'
-    "unread": path.join __dirname, '..', '..', 'icons', 'icon-unread.png'
+trayIcons = null
+
+if os.platform() == 'darwin'
+    trayIcons =
+        "read": path.join __dirname, '..', '..', 'icons', 'osx-icon-read-Template.png'
+        "unread": path.join __dirname, '..', '..', 'icons', 'osx-icon-unread-Template.png'
+else
+    trayIcons =
+        "read": path.join __dirname, '..', '..', 'icons', 'icon-read.png'
+        "unread": path.join __dirname, '..', '..', 'icons', 'icon-unread.png'
 tray = null
 
 # TODO: this is all WIP
@@ -17,7 +25,7 @@ create = () ->
     tray = new Tray trayIcons["read"]
     tray.setToolTip 'YakYak - Hangouts client'
     # Emitted when the tray icon is clicked
-    tray.on 'clicked', -> action 'showwindow'
+    tray.on 'click', -> action 'togglewindow'
 
 destroy = ->
     tray.destroy() if tray
@@ -32,7 +40,7 @@ update = (unreadCount, viewstate) ->
         }
 
         {
-          label: "Start minimzed to tray"
+          label: "Start minimized to tray"
           type: "checkbox"
           checked: viewstate.startminimizedtotray
           click: -> action 'togglestartminimizedtotray'
@@ -50,7 +58,7 @@ update = (unreadCount, viewstate) ->
           type: 'checkbox'
           checked: viewstate.hidedockicon
           click: -> action 'togglehidedockicon'
-        } if require('os').platform() == 'darwin'
+        } if os.platform() == 'darwin'
 
         { label: 'Quit', click: -> action 'quit' }
     ])
